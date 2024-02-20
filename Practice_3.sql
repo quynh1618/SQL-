@@ -29,7 +29,7 @@ LIMIT 2
 -- ex 6
 SELECT tweet_id FROM Tweets
 WHERE LENGTH(content) > 15
--- ex 7: nhờ chị chữa giúp em, em kb sai ở đâu :((
+-- ex 7: đã fix
 SELECT activity_date AS day, COUNT(DISTINCT user_id) as active_users
 FROM Activity
 WHERE activity_date BETWEEN DATE_SUB('2019-07-27', INTERVAL 30 DAY) AND  '2019-07-27'
