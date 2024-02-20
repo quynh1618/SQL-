@@ -30,9 +30,9 @@ LIMIT 2
 SELECT tweet_id FROM Tweets
 WHERE LENGTH(content) > 15
 -- ex 7: nhờ chị chữa giúp em, em kb sai ở đâu :((
-SELECT activity_date, COUNT(DISTINCT user_id) as active_users
+SELECT activity_date AS day, COUNT(DISTINCT user_id) as active_users
 FROM Activity
-WHERE activity_date BETWEEN '2019-07-27' - 30 AND  '2019-07-27'
+WHERE activity_date BETWEEN DATE_SUB('2019-07-27', INTERVAL 30 DAY) AND  '2019-07-27'
 GROUP BY activity_date
 -- ex 8:
 SELECT COUNT(id) FROM employees
