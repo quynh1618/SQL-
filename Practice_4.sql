@@ -15,11 +15,11 @@ CASE
   ELSE 'No'
 END AS triangle
 FROM Triangle
--- EX 3 (em run code báo lỗi division by zero nhưng chưa hiểu lí do tại sao count lại = 0, nhờ mn giải thích giúp em ạ)
+-- EX 3 (đã fix)
 SELECT 
-ROUND (COUNT(CASE 
+ROUND (CAST(COUNT(CASE 
 WHEN call_category IN ('n/a', 'NULL') THEN 1 ELSE 0
-END)/ count(call_category) *100,1) AS call_percentage
+END)/ count(call_category)) AS DECIMAL *100,1) AS call_percentage
 FROM callers
 -- EX 4
 SELECT name FROM Customer
