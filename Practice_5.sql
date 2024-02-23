@@ -46,3 +46,36 @@ LEFT JOIN page_likes AS b
 ON a.page_id = b.page_id
 WHERE b.liked_date IS NULL
 ORDER BY a.page_id
+
+-- MID-COURSE TEST 
+-- Question 1
+SELECT DISTINCT replacement_cost FROM film
+ORDER BY replacement_cost -- 9.99
+-- Question 2
+SELECT COUNT(*),
+CASE
+  WHEN replacement_cost BETWEEN '9.99' AND '19.99' THEN 'low'
+  WHEN replacement_cost BETWEEN '20' AND '24.99' THEN 'medium'
+  WHEN replacement_cost BETWEEN '25' AND '29.99' THEN 'high'
+END AS category
+FROM film
+WHERE CASE
+  WHEN replacement_cost BETWEEN '9.99' AND '19.99' THEN 'low'
+  WHEN replacement_cost BETWEEN '20' AND '24.99' THEN 'medium'
+  WHEN replacement_cost BETWEEN '25' AND '29.99' THEN 'high'
+END ='low' --LOW: 51
+GROUP BY category 
+-- Question 3
+SELECT a.title AS film_title, a.length AS length, c.name AS category_name
+FROM film AS a
+JOIN film_category AS b ON a.film_id = b.film_id
+JOIN category AS c ON b.category_id = c.category_id
+WHERE c.name IN ('Drama', 'Sports')
+ORDER BY length DESC -- SPORTS - LENGTH 184
+-- Question 4
+SELECT c.name AS category_name, COUNT(a.title) AS film_title
+FROM film AS a
+JOIN film_category AS b ON a.film_id = b.film_id
+JOIN category AS c ON b.category_id = c.category_id
+GROUP BY c.name
+ORDER BY film_title DESC -- SPORTS: 74
