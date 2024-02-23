@@ -93,4 +93,19 @@ LEFT JOIN customer AS b
 ON a.address_id = b.address_id
 WHERE customer_id IS NULL --4
 -- Question 7
-
+SELECT a.city, SUM(d.amount) AS total_amount
+FROM city AS a 
+JOIN address AS b ON a.city_id = b.city_id
+JOIN customer AS c ON b.address_id = c.address_id
+JOIN payment AS d on c.customer_id = d.customer_id
+GROUP BY a.city
+ORDER BY total_amount DESC -- Cape Coral : 221.55
+-- Question 8 --> câu này em ra khác đáp án so với kết quả, nhờ mn xem lại giúp em
+SELECT a.city || ',' || ' ' || e.country AS full_name , SUM(d.amount) AS total_amount
+FROM city AS a 
+JOIN address AS b ON a.city_id = b.city_id 
+JOIN customer AS c ON b.address_id = c.address_id
+JOIN payment AS d on c.customer_id = d.customer_id
+JOIN country AS e ON a.country_id = e.country_id
+GROUP BY full_name
+ORDER BY total_amount DESC  -- Cape Coral, United States : 221.55 
