@@ -79,3 +79,18 @@ JOIN film_category AS b ON a.film_id = b.film_id
 JOIN category AS c ON b.category_id = c.category_id
 GROUP BY c.name
 ORDER BY film_title DESC -- SPORTS: 74
+-- Question 5
+SELECT a.first_name, a.last_name, COUNT(b.film_id) AS so_luong_phim
+FROM actor AS a
+LEFT JOIN film_actor AS b
+ON a.actor_id = b.actor_id
+GROUP BY a.first_name, a.last_name
+ORDER BY so_luong_phim DESC -- SUSAN DAVIS: 54 MOVIES
+-- QUESTION 6
+SELECT COUNT(a.address) AS null_address
+FROM address AS a
+LEFT JOIN customer AS b
+ON a.address_id = b.address_id
+WHERE customer_id IS NULL --4
+-- Question 7
+
