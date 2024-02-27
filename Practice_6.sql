@@ -91,8 +91,25 @@ GROUP BY company_id, title, description)
 SELECT COUNT (DISTINCT company_id) AS duplicate_companies
 FROM twt_job_count
 WHERE job_count > 1
--- EX 11 (nhờ mn chữa giúp em bài này ạ)
--- EX 12 (nhờ mn chữa giúp em bài này, em chạy không giống kq ạ)
+-- EX 11 
+WITH twt_name AS(
+SELECT a.user_id, a.name AS results, COUNT(b.rating)
+FROM Users AS a 
+JOIN MovieRating AS b ON a.user_id = b.user_id
+GROUP BY a.user_id
+ORDER BY COUNT(b.rating) DESC, a.name 
+LIMIT 1),
+twt_rating AS(
+SELECT c.title AS results, AVG(b.rating)
+FROM Movies AS c
+JOIN MovieRating AS b ON c.movie_id = b.movie_id
+WHERE EXTRACT(YEAR FROM b.created_at) ='2020' AND EXTRACT(MONTH FROM b.created_at) ='02'
+GROUP BY c.title
+ORDER BY AVG(b.rating) DESC, c.title
+LIMIT 1)
+SELECT results FROM twt_name
+UNION (SELECT results FROM twt_rating)
+-- EX 12 
 WITH CTE AS(
 SELECT ids, count FROM
 (SELECT requester_id AS ids, COUNT(accepter_id) AS count
@@ -103,7 +120,8 @@ SELECT accepter_id AS ids, COUNT(requester_id) AS count
 FROM RequestAccepted
 GROUP BY accepter_id) AS SUB
 )
-SELECT ids AS id, count AS num
+SELECT ids AS id, SUM(count) AS num
 FROM CTE
 GROUP BY id
 ORDER BY num DESC
+LIMIT 1
