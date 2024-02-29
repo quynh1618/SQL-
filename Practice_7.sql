@@ -36,4 +36,38 @@ COUNT(product_id) as purchase_count
 FROM twt_rank
 WHERE rnk = 1
 GROUP BY transaction_date, user_id
--- ex5
+-- ex5 (nhờ mn chữa giúp em bài này ạ)
+-- ex6
+WITH twt_minutes AS(
+SELECT merchant_id, 
+EXTRACT (EPOCH FROM 
+transaction_timestamp - LAG(transaction_timestamp) OVER(PARTITION BY merchant_id, credit_card_id, amount
+ORDER BY transaction_timestamp))/60 AS minutes
+FROM transactions
+)
+SELECT COUNT(merchant_id) AS payment_count
+FROM twt_minutes
+WHERE minutes <= 10
+-- ex7
+WITH twt_first_step AS(
+SELECT category, product, SUM(spend) AS total_spending,
+RANK()OVER (PARTITION BY category ORDER BY SUM(spend) DESC) AS ranking
+FROM product_spend
+WHERE EXTRACT(year FROM transaction_date) ='2022'
+GROUP BY category, product
+)
+SELECT category, product, total_spending
+FROM twt_first_step
+WHERE ranking <=2
+-- ex8
+WITH twt_cte AS(
+SELECT a.artist_name AS artist_name, 
+DENSE_RANK() OVER(ORDER BY COUNT(c.song_id) DESC) AS artist_rank
+FROM artists AS a
+JOIN songs AS b ON a.artist_id = b.artist_id
+JOIN global_song_rank AS c ON b.song_id = c.song_id
+WHERE c.rank <=10
+GROUP BY a.artist_name)
+SELECT artist_name, artist_rank
+FROM twt_cte 
+WHERE artist_rank <=5
