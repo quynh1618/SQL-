@@ -29,4 +29,34 @@ ELSE id
 END AS id, student
 FROM Seat
 ORDER BY id ASC
--- ex4
+-- ex4 (nhờ mn chữa giúp em bài này ạ)
+-- ex5
+WITH twt_filter AS(
+SELECT tiv_2016,
+COUNT(*)OVER(PARTITION BY lat, lon) AS count1,
+COUNT(*)OVER(PARTITION BY tiv_2015) AS count2
+FROM Insurance)
+SELECT ROUND(SUM(tiv_2016),2) AS tiv_2016
+FROM twt_filter
+WHERE count1 = 1 AND count2 > 1
+-- ex6
+WITH twt_rank AS(
+SELECT b.name AS Department, a.name AS Employee, a.salary AS Salary,
+DENSE_RANK()OVER(PARTITION BY b.name ORDER BY a.salary DESC) AS rnk
+FROM Employee AS a 
+JOIN Department AS b ON a.departmentId = b.id)
+SELECT Department, Employee, Salary
+FROM twt_rank 
+WHERE rnk <=3
+-- ex7
+WITH twt_total_weight AS(
+SELECT person_name,
+SUM(weight)OVER(ORDER BY turn) AS total_weight
+FROM Queue)
+SELECT person_name
+FROM twt_total_weight 
+WHERE total_weight>= 1000 
+LIMIT 1
+--ex8 (nhờ mn chữa giúp em bài này ạ)
+
+
