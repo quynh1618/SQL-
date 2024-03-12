@@ -58,3 +58,17 @@ JOIN bigquery-public-data.thelook_ecommerce.order_items AS b
 ON a.id = b.product_id
 WHERE FORMAT_DATE('%Y-%m-%d', b.created_at) BETWEEN '2022-04-15' AND '2022-01-15'
 GROUP BY a.category, FORMAT_DATE('%Y-%m-%d', b.created_at)
+-- CREATE VIEW
+CREATE OR REPLACE VIEW vw_ecommerce_analyst AS (
+SELECT FORMAT_DATE('%Y-%m', a.created_at) AS month_year, EXTRACT(YEAR FROM a.created_at) AS Year,
+c.category AS Product_category, SUM(b.sale_price) AS TPV, 
+COUNT(b.order_id) AS TPO,
+(SUM(b.sale_price) - LAG(SUM(b.sale_price)) OVER(PARTITION BY FORMAT_DATE('%Y-%m', a.created_at) ORDER BY FORMAT_DATE('%Y-%m', a.created_at)))/SUM(b.sale_price)*100 AS Revenue_growth,
+(COUNT(b.order_id) - LAG(SUM(b.order_id)) OVER(PARTITION BY FORMAT_DATE('%Y-%m', a.created_at) ORDER BY FORMAT_DATE('%Y-%m', a.created_at)))/COUNT(b.order_id)*100 AS Order_growth,
+SUM(c.cost) AS total_cost, (SUM(b.sale_price) - SUM(c.cost)) AS total_profit,
+SUM(b.sale_price)/SUM(c.cost) AS Profit_to_cost_ratio
+FROM bigquery-public-data.thelook_ecommerce.orders AS a
+JOIN bigquery-public-data.thelook_ecommerce.order_items AS b ON a.order_id = b.order_id
+JOIN bigquery-public-data.thelook_ecommerce.products AS c ON b.product_id = c.id 
+GROUP BY FORMAT_DATE('%Y-%m', a.created_at), c.category
+)
