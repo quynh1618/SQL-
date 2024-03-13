@@ -72,3 +72,95 @@ JOIN bigquery-public-data.thelook_ecommerce.order_items AS b ON a.order_id = b.o
 JOIN bigquery-public-data.thelook_ecommerce.products AS c ON b.product_id = c.id 
 GROUP BY FORMAT_DATE('%Y-%m', a.created_at), c.category
 )
+-- CUSTOMER COHORT
+WITH twt_index AS(
+SELECT user_id, sale_price,FORMAT_DATE('%Y-%m', first_purchase_date) AS cohort_date,
+created_at,
+(EXTRACT (YEAR FROM created_at) - EXTRACT (YEAR FROM first_purchase_date))*12 
++ (EXTRACT (MONTH FROM created_at) - EXTRACT (MONTH FROM first_purchase_date)) + 1 AS index
+FROM(
+SELECT user_id, sale_price,
+MIN(created_at) OVER(PARTITION BY user_id) AS first_purchase_date,
+created_at
+FROM bigquery-public-data.thelook_ecommerce.order_items) a),
+twt_xxx AS (
+SELECT cohort_date, index, COUNT(DISTINCT user_id) AS cnt,
+SUM(sale_price) AS revenue
+FROM twt_index
+WHERE index <= 4
+GROUP BY cohort_date, index
+ORDER BY cohort_date DESC)
+SELECT cohort_date,
+SUM(CASE WHEN index = 1 THEN cnt ELSE 0 END) AS i1,
+SUM(CASE WHEN index = 2 THEN cnt ELSE 0 END) AS i2,
+SUM(CASE WHEN index = 3 THEN cnt ELSE 0 END) AS i3,
+SUM(CASE WHEN index = 4 THEN cnt ELSE 0 END) AS i4,
+FROM twt_xxx
+GROUP BY cohort_date 
+ORDER BY cohort_date
+-- RETENTION COHORT
+WITH twt_index AS(
+SELECT user_id, sale_price,FORMAT_DATE('%Y-%m', first_purchase_date) AS cohort_date,
+created_at,
+(EXTRACT (YEAR FROM created_at) - EXTRACT (YEAR FROM first_purchase_date))*12 
++ (EXTRACT (MONTH FROM created_at) - EXTRACT (MONTH FROM first_purchase_date)) + 1 AS index
+FROM(
+SELECT user_id, sale_price,
+MIN(created_at) OVER(PARTITION BY user_id) AS first_purchase_date,
+created_at
+FROM bigquery-public-data.thelook_ecommerce.order_items) a),
+twt_xxx AS (
+SELECT cohort_date, index, COUNT(DISTINCT user_id) AS cnt,
+SUM(sale_price) AS revenue
+FROM twt_index
+WHERE index <= 4
+GROUP BY cohort_date, index
+ORDER BY cohort_date DESC),
+twt_customer_cohort AS(
+SELECT cohort_date,
+SUM(CASE WHEN index = 1 THEN cnt ELSE 0 END) AS i1,
+SUM(CASE WHEN index = 2 THEN cnt ELSE 0 END) AS i2,
+SUM(CASE WHEN index = 3 THEN cnt ELSE 0 END) AS i3,
+SUM(CASE WHEN index = 4 THEN cnt ELSE 0 END) AS i4,
+FROM twt_xxx
+GROUP BY cohort_date 
+ORDER BY cohort_date)
+SELECT cohort_date,
+ROUND(100* i1/i1,2) || '%' AS r1, 
+ROUND(100* i2/i1,2) || '%' AS r2,
+ROUND(100* i3/i1,2) || '%' AS r3,
+ROUND(100* i4/i1,2) || '%' AS r4,
+FROM twt_customer_cohort
+-- CHURN COHORT
+WITH twt_index AS(
+SELECT user_id, sale_price,FORMAT_DATE('%Y-%m', first_purchase_date) AS cohort_date,
+created_at,
+(EXTRACT (YEAR FROM created_at) - EXTRACT (YEAR FROM first_purchase_date))*12 
++ (EXTRACT (MONTH FROM created_at) - EXTRACT (MONTH FROM first_purchase_date)) + 1 AS index
+FROM(
+SELECT user_id, sale_price,
+MIN(created_at) OVER(PARTITION BY user_id) AS first_purchase_date,
+created_at
+FROM bigquery-public-data.thelook_ecommerce.order_items) a),
+twt_xxx AS (
+SELECT cohort_date, index, COUNT(DISTINCT user_id) AS cnt,
+SUM(sale_price) AS revenue
+FROM twt_index
+WHERE index <= 4
+GROUP BY cohort_date, index
+ORDER BY cohort_date DESC),
+twt_customer_cohort AS(
+SELECT cohort_date,
+SUM(CASE WHEN index = 1 THEN cnt ELSE 0 END) AS i1,
+SUM(CASE WHEN index = 2 THEN cnt ELSE 0 END) AS i2,
+SUM(CASE WHEN index = 3 THEN cnt ELSE 0 END) AS i3,
+SUM(CASE WHEN index = 4 THEN cnt ELSE 0 END) AS i4,
+FROM twt_xxx
+GROUP BY cohort_date 
+ORDER BY cohort_date)
+SELECT cohort_date,
+(100 - ROUND(100* i1/i1,2)) || '%' AS r1, 
+(100 - ROUND(100* i2/i1,2)) || '%' AS r2,
+(100 - ROUND(100* i3/i1,2)) || '%' AS r3,
+(100 - ROUND(100* i4/i1,2)) || '%' AS r4,
+FROM twt_customer_cohort
