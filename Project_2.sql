@@ -56,8 +56,9 @@ SELECT FORMAT_DATE('%Y-%m-%d', b.created_at) AS dates, a.category AS product_cat
 FROM bigquery-public-data.thelook_ecommerce.products AS a
 JOIN bigquery-public-data.thelook_ecommerce.order_items AS b
 ON a.id = b.product_id
-WHERE FORMAT_DATE('%Y-%m-%d', b.created_at) BETWEEN '2022-04-15' AND '2022-01-15'
+WHERE FORMAT_DATE('%Y-%m-%d', b.created_at) BETWEEN '2022-01-15' AND '2022-04-15'
 GROUP BY a.category, FORMAT_DATE('%Y-%m-%d', b.created_at)
+ORDER BY dates
 -- CREATE VIEW
 CREATE OR REPLACE VIEW vw_ecommerce_analyst AS (
 SELECT FORMAT_DATE('%Y-%m', a.created_at) AS month_year, EXTRACT(YEAR FROM a.created_at) AS Year,
