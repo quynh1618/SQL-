@@ -47,4 +47,23 @@ RANK()OVER(ORDER BY REVENUE DESC)
 FROM cte2
 WHERE rnk1 = 1
 -- Câu 5
-
+WITH twt_customer_rfm AS(
+SELECT customername, current_date - MAX(orderdate) AS R,
+count(DISTINCT ordernumber) AS F,
+SUM(sales) AS M
+FROM SALES_DATASET_RFM_PRJ
+GROUP BY customername),
+rfm_scores AS(
+SELECT customername,
+ntile (5) OVER(ORDER BY R DESC) AS R_score,
+ntile (5) OVER(ORDER BY F) AS F_score,
+ntile (5) OVER(ORDER BY M) AS M_score
+FROM twt_customer_rfm),
+rfm_final AS(
+SELECT customername,
+CAST(R_score AS varchar)||CAST(F_score AS varchar)||CAST(M_score AS varchar) AS rfm_score
+FROM rfm_scores)
+SELECT a. customername, b. segment
+FROM rfm_final AS a
+JOIN segment_score AS b ON a.rfm_score = b.scores
+WHERE b.segment = 'Champions'
