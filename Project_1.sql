@@ -1,3 +1,12 @@
+-- Đề bài:
+-- Hãy làm sạch dữ liệu theo hướng dẫn sau:
+1. Chuyển đổi kiểu dữ liệu phù hợp cho các trường ( sử dụng câu lệnh ALTER) 
+2. Thêm cột CONTACTLASTNAME, CONTACTFIRSTNAME được tách ra từ CONTACTFULLNAME . 
+Chuẩn hóa CONTACTLASTNAME, CONTACTFIRSTNAME theo định dạng chữ cái đầu tiên viết hoa, chữ cái tiếp theo viết thường. 
+3. Thêm cột QTR_ID, MONTH_ID, YEAR_ID lần lượt là Qúy, tháng, năm được lấy ra từ ORDERDATE 
+4. Hãy tìm outlier (nếu có) cho cột QUANTITYORDERED và hãy chọn cách xử lý cho bản ghi đó (2 cách) ( Không chạy câu lệnh trước khi bài được review)
+5. Sau khi làm sạch dữ liệu, hãy lưu vào bảng mới  tên là SALES_DATASET_RFM_PRJ_CLEAN
+-- Phần thực hành
 -- câu 1
 ALTER TABLE SALES_DATASET_RFM_PRJ
 ALTER COLUMN quantityordered TYPE numeric USING (trim(quantityordered)::numeric),
@@ -6,15 +15,14 @@ ALTER COLUMN orderlinenumber TYPE numeric USING (trim(orderlinenumber)::numeric)
 ALTER COLUMN sales TYPE numeric USING (trim(sales)::numeric),
 ALTER COLUMN orderdate TYPE date USING (trim(orderdate)::date),
 ALTER COLUMN msrp TYPE numeric USING (trim(msrp)::numeric)
--- câu 2: nhờ mn chữa giúp em câu này
--- câu 3
+-- câu 2
 ALTER TABLE SALES_DATASET_RFM_PRJ ADD COLUMN CONTACTLASTNAME VARCHAR;
 ALTER TABLE SALES_DATASET_RFM_PRJ ADD COLUMN CONTACTFIRSTNAME VARCHAR;
 UPDATE SALES_DATASET_RFM_PRJ
 SET CONTACTLASTNAME = INITCAP(LEFT(LEFT(contactfullname, POSITION('-' IN contactfullname)-1));
 UPDATE SALES_DATASET_RFM_PRJ
 SET CONTACTFIRSTNAME = INITCAP(RIGHT(contactfullname, LENGTH(contactfullname) - LENGTH(LEFT(contactfullname, POSITION('-' IN contactfullname)))));
--- câu 4
+-- câu 3
 ALTER TABLE SALES_DATASET_RFM_PRJ ADD COLUMN QTR_ID INT;
 ALTER TABLE SALES_DATASET_RFM_PRJ ADD COLUMN MONTH_ID INT;
 ALTER TABLE SALES_DATASET_RFM_PRJ ADD COLUMN YEAR_ID INT;
@@ -24,7 +32,7 @@ UPDATE SALES_DATASET_RFM_PRJ;
 SET MONTH_ID = EXTRACT(MONTH FROM ORDERDATE)
 UPDATE SALES_DATASET_RFM_PRJ;
 SET YEAR_ID = EXTRACT(YEAR FROM ORDERDATE)
--- câu 5
+-- câu 4
 --cách 1: boxplot
 WITH twt_min_max_value AS (
 SELECT Q1-1.5*IQR AS min_value, Q3+1.5*IQR AS max_value FROM (
@@ -51,6 +59,6 @@ WHERE ABS((QUANTITYORDERED-avg)/stddev) > 2)
 UPDATE SALES_DATASET_RFM_PRJ
 SET QUANTITYORDERED = SELECT (AVG(QUANTITYORDERED) FROM SALES_DATASET_RFM_PRJ)
 WHERE QUANTITYORDERED IN (SELECT QUANTITYORDERED FROM twt_outliner)
--- câu 6
+-- câu 5
 CREATE OR REPLACE VIEW SALES_DATASET_RFM_PRJ_CLEAN AS(
 	SELECT * FROM SALES_DATASET_RFM_PRJ)
