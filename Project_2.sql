@@ -1,3 +1,27 @@
+-- ĐỀ BÀI
+Ecommerce Dataset: Exploratory Data Analysis (EDA) and Cohort Analysis in SQL
+I. Tổng quan về dữ liệu
+TheLook là một trang web thương mại điện tử về quần áo. Tập dữ liệu chứa thông tin về customers, products, orders, logistics, web events 
+,digital marketing campaigns. Thelook Dataset
+Bảng Orders : ghi lại tất cả các đơn hàng mà khách hàng đã đặt
+Bảng Order_items : ghi lại danh sách các mặt hàng đã mua trong mỗi order ID..
+Bảng Products : ghi lại chi tiết các sản phẩm được bán trên The Look, bao gồm price, brand, & product categories
+II. Ad-hoc tasks
+1. Số lượng đơn hàng và số lượng khách hàng mỗi tháng
+Thống kê tổng số lượng người mua và số lượng đơn hàng đã hoàn thành mỗi tháng ( Từ 1/2019-4/2022)
+2. Giá trị đơn hàng trung bình (AOV) và số lượng khách hàng mỗi tháng
+Thống kê giá trị đơn hàng trung bình và tổng số người dùng khác nhau mỗi tháng (Từ 1/2019-4/2022)
+3. Nhóm khách hàng theo độ tuổi
+Tìm các khách hàng có trẻ tuổi nhất và lớn tuổi nhất theo từng giới tính (Từ 1/2019-4/2022)
+4.Top 5 sản phẩm mỗi tháng.
+Thống kê top 5 sản phẩm có lợi nhuận cao nhất từng tháng (xếp hạng cho từng sản phẩm). 
+5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
+III. Tạo metric trước khi dựng dashboard
+1) Hãy sử dụng câu lệnh SQL để tạo ra 1 dataset như mong muốn và lưu dataset đó vào VIEW đặt tên là vw_ecommerce_analyst
+2) Tạo retention cohort analysis.
+Lưu ý: Ở mỗi cohort chỉ theo dõi 3 tháng (indext từ 1 đến 4)
+
+  -- PHẦN THỰC HÀNH
 -- ADHOC TASK
 -- TASK 1
 SELECT FORMAT_DATE('%Y-%m', created_at) AS month_year, COUNT(DISTINCT user_id) AS total_user, COUNT (order_id) AS total_order
